@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mes Pronostics Sportifs</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #6b21a8 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .fixed-top-right {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 50;
+        }
+        
+        .btn-admin {
+            background: #7c3aed;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3);
+        }
+        
+        .btn-admin.active {
+            background: #16a34a;
+        }
+        
+        .social-buttons {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .social-btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+        }
+        
+        .social-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .whatsapp {
+            background: #25d366;
+        }
+        
+        .facebook {
+            background: #1877f2;
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .modal-overlay.hidden {
+            display: none;
+        }
+        
+        .modal-content {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 1rem;
+            padding: 2rem;
+            max-width: 28rem;
+            width: 100%;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            font-size: 1rem;
+        }
+        
+        input::placeholder {
+            color: rgba(191, 219, 254, 0.8);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .btn-green {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .btn-green:hover {
+            background: #15803d;
+        }
+        
+        .btn-gray {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-gray:hover {
+            background: #4b5563;
+        }
+        
+        .error-text {
+            color: #fca5a5;
+            font-size: 0.875rem;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .header {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .header-content {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .trophy-icon {
+            color: #facc15;
+        }
+        
+        .header-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .header-subtitle {
+            font-size: 0.875rem;
+            color: #bfdbfe;
+        }
+        
+        .main-content {
+            max-width: 64rem;
+            margin: 0 auto;
+            padding: 1.5rem 1rem;
+            padding-bottom: 8rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        @media (min-width: 768px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+        
+        .stat-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            padding: 1rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: bold;
+        }
+        
+        .form-container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .prono-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .prono-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        
+        .prono-title {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.25rem;
+        }
+        
+        .prono-league {
+            font-size: 0.875rem;
+            color: #bfdbfe;
+        }
+        
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #f87171;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+        
+        .prono-content {
+            background: rgba(255,255,255,0.1);
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .prono-text {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prono-details {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+        
+        .prono-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .prono-date {
+            font-size: 0.875rem;
+            color: #bfdbfe;
+        }
+        
+        .status-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .status-btn {
+            padding: 0.25rem 0.75rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .status-btn.inactive {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+        
+        .status-btn.inactive:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .status-btn.gagne {
+            background: #16a34a;
+            color: white;
+        }
+        
+        .status-btn.perdu {
+            background: #dc2626;
+            color: white;
+        }
+        
+        .status-btn.enCours {
+            background: #eab308;
+            color: white;
+        }
+        
+        .empty-state {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .empty-icon {
+            color: #facc15;
+            margin: 0 auto 1rem;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Bouton Mode Admin -->
+    <div class="fixed-top-right">
+        <button id="btnModeAdmin" class="btn-admin">🔒 Mode Admin</button>
+    </div>
+
+    <!-- Boutons réseaux sociaux -->
+    <div class="social-buttons">
+        <a href="https://wa.me/22657267114" target="_blank" class="social-btn whatsapp" title="WhatsApp">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+        </a>
+        <a href="https://facebook.com/https://www.facebook.com/florent.compaore.75" target="_blank" class="social-btn facebook" title="Facebook">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+        </a>
+    </div>
+
+    <!-- Modal Connexion -->
+    <div id="ecranConnexion" class="modal-overlay hidden">
+        <div class="modal-content">
+            <h2 class="modal-title">🔐 Connexion Admin</h2>
+            <div class="input-group">
+                <input type="password" id="inputMotDePasse" placeholder="Mot de passe">
+            </div>
+            <button id="btnConnexion" class="btn btn-green">Se connecter</button>
+            <button id="btnAnnulerConnexion" class="btn btn-gray">Annuler</button>
+            <p id="erreurConnexion" class="error-text hidden">Mot de passe incorrect</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="header-left">
+                <svg class="trophy-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"></path>
+                    <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"></path>
+                    <path d="M4 22h16"></path>
+                    <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"></path>
+                    <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"></path>
+                    <path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"></path>
+                </svg>
+                <div>
+                    <div class="header-title">Mes Pronostics</div>
+                    <div class="header-subtitle">Partagez vos paris gagnants</div>
+                </div>
+            </div>
+            <button id="btnNouveauProno" class="btn-green hidden" style="padding: 0.5rem 1rem; border-radius: 0.5rem; border: none; font-weight: 600; cursor: pointer;">
+                + Nouveau
+            </button>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="main-content">
+        
+        <!-- Statistiques -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label" style="color: #bfdbfe;">Total</div>
+                <div class="stat-value" id="statTotal">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" style="color: #86efac;">Gagnés</div>
+                <div class="stat-value" style="color: #4ade80;" id="statGagnes">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" style="color: #fca5a5;">Perdus</div>
+                <div class="stat-value" style="color: #f87171;" id="statPerdus">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label" style="color: #fde047;">Réussite</div>
+                <div class="stat-value" style="color: #facc15;" id="statReussite">0%</div>
+            </div>
+        </div>
+
+        <!-- Formulaire -->
+        <div id="formulaireProno" class="form-container hidden">
+            <div class="form-title">📝 Ajouter un pronostic</div>
+            <div class="form-group">
+                <label class="form-label">Match *</label>
+                <input type="text" id="inputMatch" placeholder="Ex: PSG vs Marseille">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Ligue</label>
+                <input type="text" id="inputLigue" placeholder="Ex: Ligue 1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Pronostic *</label>
+                <input type="text" id="inputPronostic" placeholder="Ex: Victoire PSG">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Cote *</label>
+                    <input type="text" id="inputCote" placeholder="Ex: 1.85">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mise conseillée</label>
+                    <input type="text" id="inputMise" placeholder="Ex: 10€">
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date du match</label>
+                <input type="text" id="inputDate" placeholder="Ex: 31/12/2024">
+            </div>
+            <button id="btnPublier" class="btn btn-green">✅ Publier le pronostic</button>
+        </div>
+
+        <!-- Liste -->
+        <div id="listePronostics"></div>
+    </div>
+
+    <script>
+        const MOT_DE_PASSE_ADMIN = "Florent2K6";
+        let modeAdmin = false;
+        let pronostics = [];
+
+        const btnModeAdmin = document.getElementById('btnModeAdmin');
+        const ecranConnexion = document.getElementById('ecranConnexion');
+        const btnConnexion = document.getElementById('btnConnexion');
+        const btnAnnulerConnexion = document.getElementById('btnAnnulerConnexion');
+        const inputMotDePasse = document.getElementById('inputMotDePasse');
+        const erreurConnexion = document.getElementById('erreurConnexion');
+        const btnNouveauProno = document.getElementById('btnNouveauProno');
+        const formulaireProno = document.getElementById('formulaireProno');
+
+        btnModeAdmin.addEventListener('click', () => {
+            if (modeAdmin) {
+                deconnecterAdmin();
+            } else {
+                ecranConnexion.classList.remove('hidden');
+            }
+        });
+
+        btnAnnulerConnexion.addEventListener('click', () => {
+            ecranConnexion.classList.add('hidden');
+            inputMotDePasse.value = '';
+            erreurConnexion.classList.add('hidden');
+        });
+
+        btnConnexion.addEventListener('click', () => {
+            if (inputMotDePasse.value === MOT_DE_PASSE_ADMIN) {
+                modeAdmin = true;
+                ecranConnexion.classList.add('hidden');
+                btnModeAdmin.textContent = '🔓 Mode Admin (ON)';
+                btnModeAdmin.classList.add('active');
+                btnNouveauProno.classList.remove('hidden');
+                inputMotDePasse.value = '';
+                erreurConnexion.classList.add('hidden');
+                afficherPronostics();
+            } else {
+                erreurConnexion.classList.remove('hidden');
+            }
+        });
+
+        function deconnecterAdmin() {
+            modeAdmin = false;
+            btnModeAdmin.textContent = '🔒 Mode Admin';
+            btnModeAdmin.classList.remove('active');
+            btnNouveauProno.classList.add('hidden');
+            formulaireProno.classList.add('hidden');
+            afficherPronostics();
+        }
+
+        btnNouveauProno.addEventListener('click', () => {
+            formulaireProno.classList.toggle('hidden');
+        });
+
+        document.getElementById('btnPublier').addEventListener('click', ajouterPronostic);
+
+        function ajouterPronostic() {
+            const match = document.getElementById('inputMatch').value;
+            const ligue = document.getElementById('inputLigue').value;
+            const pronostic = document.getElementById('inputPronostic').value;
+            const cote = document.getElementById('inputCote').value;
+            const mise = document.getElementById('inputMise').value;
+            const date = document.getElementById('inputDate').value;
+
+            if (!match || !pronostic || !cote) {
+                alert('⚠️ Veuillez remplir au moins le match, le pronostic et la cote');
+                return;
+            }
+
+            const nouveau = {
+                id: Date.now(),
+                match, ligue, pronostic, cote, mise,
+                date: date || new Date().toLocaleDateString('fr-FR'),
+                resultat: 'enCours'
+            };
+
+            pronostics.unshift(nouveau);
+            sauvegarder();
+            afficherPronostics();
+            mettreAJourStats();
+
+            document.getElementById('inputMatch').value = '';
+            document.getElementById('inputLigue').value = '';
+            document.getElementById('inputPronostic').value = '';
+            document.getElementById('inputCote').value = '';
+            document.getElementById('inputMise').value = '';
+            document.getElementById('inputDate').value = '';
+            formulaireProno.classList.add('hidden');
+        }
+        function changerResultat(id, nouveauResultat) {
+            pronostics = pronostics.map(p => 
+                p.id === id ? { ...p, resultat: nouveauResultat } : p
+            );
+            sauvegarder();
+            afficherPronostics();
+            mettreAJourStats();
+        }
+
+        function supprimerPronostic(id) {
+            if (confirm('❌ Êtes-vous sûr de vouloir supprimer ce pronostic ?')) {
+                pronostics = pronostics.filter(p => p.id !== id);
+                sauvegarder();
+                afficherPronostics();
+                mettreAJourStats();
+            }
+        }
+
+        function afficherPronostics() {
+            const liste = document.getElementById('listePronostics');
+            
+            if (pronostics.length === 0) {
+                liste.innerHTML = `
+                    <div class="empty-state">
+                        <svg class="empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                        <p style="font-size: 1.125rem; margin-bottom: 0.5rem;">Aucun pronostic pour le moment</p>
+                        <p style="color: #bfdbfe; font-size: 0.875rem;">${modeAdmin ? 'Cliquez sur "Nouveau" pour commencer' : 'Revenez bientôt pour de nouveaux pronostics !'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            liste.innerHTML = pronostics.map(prono => `
+                <div class="prono-card">
+                    <div class="prono-header">
+                        <div style="flex: 1;">
+                            <div class="prono-title">${prono.match}</div>
+                            ${prono.ligue ? `<div class="prono-league">${prono.ligue}</div>` : ''}
+                        </div>
+                        ${modeAdmin ? `<button onclick="supprimerPronostic(${prono.id})" class="delete-btn">❌</button>` : ''}
+                    </div>
+                    <div class="prono-content">
+                        <div class="prono-text">${prono.pronostic}</div>
+                        <div class="prono-details">
+                            <span style="color: #facc15;">⭐ Cote: ${prono.cote}</span>
+                            ${prono.mise ? `<span style="color: #86efac;">💰 Mise: ${prono.mise}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="prono-footer">
+                        <div class="prono-date">📅 ${prono.date}</div>
+                        <div class="status-buttons">
+                            ${modeAdmin ? `
+                                <button onclick="changerResultat(${prono.id}, 'gagne')" 
+                                    class="status-btn ${prono.resultat === 'gagne' ? 'gagne' : 'inactive'}">
+                                    ✅ Gagné
+                                </button>
+                                <button onclick="changerResultat(${prono.id}, 'perdu')" 
+                                    class="status-btn ${prono.resultat === 'perdu' ? 'perdu' : 'inactive'}">
+                                    ❌ Perdu
+                                </button>
+                                <button onclick="changerResultat(${prono.id}, 'enCours')" 
+                                    class="status-btn ${prono.resultat === 'enCours' ? 'enCours' : 'inactive'}">
+                                    ⏳ En cours
+                                </button>
+                            ` : `
+                                <span class="status-btn ${prono.resultat}">
+                                    ${prono.resultat === 'gagne' ? '✅ Gagné' : prono.resultat === 'perdu' ? '❌ Perdu' : '⏳ En cours'}
+                                </span>
+                            `}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function mettreAJourStats() {
+            const total = pronostics.length;
+            const gagnes = pronostics.filter(p => p.resultat === 'gagne').length;
+            const perdus = pronostics.filter(p => p.resultat === 'perdu').length;
+            const pourcentage = (gagnes + perdus) > 0 ? Math.round((gagnes / (gagnes + perdus)) * 100) : 0;
+
+            document.getElementById('statTotal').textContent = total;
+            document.getElementById('statGagnes').textContent = gagnes;
+            document.getElementById('statPerdus').textContent = perdus;
+            document.getElementById('statReussite').textContent = pourcentage + '%';
+        }
+
+        function sauvegarder() {
+            localStorage.setItem('pronostics', JSON.stringify(pronostics));
+        }
+
+        function charger() {
+            const sauvegardes = localStorage.getItem('pronostics');
+            if (sauvegardes) {
+                pronostics = JSON.parse(sauvegardes);
+            }
+            afficherPronostics();
+            mettreAJourStats();
+        }
+
+        charger();
+    </script>
+</body>
+</html>
